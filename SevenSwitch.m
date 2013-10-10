@@ -30,6 +30,10 @@
     UIView *knob;
     UIImageView *onImageView;
     UIImageView *offImageView;
+    UILabel * textLabel;
+    CGRect inactiveTextFrame;
+    CGRect activeTextFrame;
+    
     BOOL currentVisualValue;
     BOOL startTrackingValue;
     BOOL didChangeWhileTracking;
@@ -42,6 +46,35 @@
 
 @end
 
+@interface UIColor(LightAndDark)
+- (UIColor *)lighterColor;
+- (UIColor *)darkerColor;
+@end
+
+@implementation UIColor (LightAndDark)
+
+- (UIColor *)lighterColor
+{
+    CGFloat h, s, b, a;
+    if ([self getHue:&h saturation:&s brightness:&b alpha:&a])
+        return [UIColor colorWithHue:h
+                          saturation:s
+                          brightness:MIN(b * 1.3, 1.0)
+                               alpha:a];
+    return nil;
+}
+
+- (UIColor *)darkerColor
+{
+    CGFloat h, s, b, a;
+    if ([self getHue:&h saturation:&s brightness:&b alpha:&a])
+        return [UIColor colorWithHue:h
+                          saturation:s
+                          brightness:b * 0.75
+                               alpha:a];
+    return nil;
+}
+@end
 
 @implementation SevenSwitch
 
@@ -49,7 +82,8 @@
 @synthesize onImage, offImage;
 @synthesize isRounded;
 @synthesize on;
-
+@synthesize textActiveColor;
+@synthesize textInActiveColor;
 
 #pragma mark init Methods
 
@@ -133,6 +167,17 @@
     knob.layer.shadowOffset = CGSizeMake(0, 3);
     knob.layer.masksToBounds = NO;
     knob.userInteractionEnabled = NO;
+    
+    inactiveTextFrame = CGRectMake(self.frame.size.height + 2.0f, 0.0f, self.frame.size.width-self.frame.size.height, self.frame.size.height);
+    activeTextFrame = CGRectMake(10.0f, 0.0f, self.frame.size.width-10.0f, self.frame.size.height);
+    
+    
+    textLabel = [[UILabel alloc]initWithFrame:inactiveTextFrame];
+    textLabel.backgroundColor = [UIColor clearColor];
+    textLabel.font = [UIFont boldSystemFontOfSize:10.0f];
+ 
+    
+    [self addSubview:textLabel];
     [self addSubview:knob];
 
     isAnimating = NO;
@@ -146,7 +191,6 @@
 
     startTrackingValue = self.on;
     didChangeWhileTracking = NO;
-
     // make the knob larger and animate to the correct color
     CGFloat activeKnobWidth = self.bounds.size.height - 2 + 5;
     isAnimating = YES;
@@ -154,10 +198,12 @@
         if (self.on) {
             knob.frame = CGRectMake(self.bounds.size.width - (activeKnobWidth + 1), knob.frame.origin.y, activeKnobWidth, knob.frame.size.height);
             background.backgroundColor = self.onTintColor;
+            textLabel.textColor = [self.onTintColor lighterColor];
         }
         else {
             knob.frame = CGRectMake(knob.frame.origin.x, knob.frame.origin.y, activeKnobWidth, knob.frame.size.height);
             background.backgroundColor = self.activeColor;
+            textLabel.textColor = [self.activeColor lighterColor];
         }
     } completion:^(BOOL finished) {
         isAnimating = NO;
@@ -219,10 +265,10 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-
+    
     if (!isAnimating) {
         CGRect frame = self.frame;
-
+        textLabel.textColor = self.textInActiveColor;
         // background
         background.frame = CGRectMake(0, 0, frame.size.width, frame.size.height);
         background.layer.cornerRadius = self.isRounded ? frame.size.height * 0.5 : 2;
@@ -239,6 +285,7 @@
             knob.frame = CGRectMake(1, 1, normalKnobWidth, normalKnobWidth);
 
         knob.layer.cornerRadius = self.isRounded ? (frame.size.height * 0.5) - 1 : 2;
+        
     }
 }
 
@@ -389,8 +436,12 @@
             background.layer.borderColor = self.onTintColor.CGColor;
             onImageView.alpha = 1.0;
             offImageView.alpha = 0;
+            textLabel.textColor = self.textActiveColor;
+            textLabel.frame = activeTextFrame;
+            
         } completion:^(BOOL finished) {
             isAnimating = NO;
+//            textLabel.textAlignment = NSTextAlignmentRight;
         }];
     }
     else {
@@ -400,6 +451,9 @@
             knob.frame = CGRectMake(self.bounds.size.width - (normalKnobWidth + 1), knob.frame.origin.y, normalKnobWidth, knob.frame.size.height);
         background.backgroundColor = self.onTintColor;
         background.layer.borderColor = self.onTintColor.CGColor;
+        textLabel.textColor = self.textActiveColor;
+        textLabel.frame = activeTextFrame;
+//            textLabel.textAlignment = NSTextAlignmentRight;
         onImageView.alpha = 1.0;
         offImageView.alpha = 0;
     }
@@ -421,10 +475,16 @@
             if (self.tracking) {
                 knob.frame = CGRectMake(1, knob.frame.origin.y, activeKnobWidth, knob.frame.size.height);
                 background.backgroundColor = self.activeColor;
+                textLabel.textColor = self.textActiveColor;
+                textLabel.frame = activeTextFrame;
+//                textLabel.textAlignment = NSTextAlignmentRight;
             }
             else {
                 knob.frame = CGRectMake(1, knob.frame.origin.y, normalKnobWidth, knob.frame.size.height);
                 background.backgroundColor = self.inactiveColor;
+                textLabel.textColor = self.textInActiveColor;
+                textLabel.frame = inactiveTextFrame;
+//                textLabel.textAlignment = NSTextAlignmentLeft;
             }
             background.layer.borderColor = self.borderColor.CGColor;
             onImageView.alpha = 0;
@@ -437,10 +497,16 @@
         if (self.tracking) {
             knob.frame = CGRectMake(1, knob.frame.origin.y, activeKnobWidth, knob.frame.size.height);
             background.backgroundColor = self.activeColor;
+            textLabel.textColor = self.textActiveColor;
+            textLabel.frame = activeTextFrame;
+//            textLabel.textAlignment = NSTextAlignmentRight;
         }
         else {
             knob.frame = CGRectMake(1, knob.frame.origin.y, normalKnobWidth, knob.frame.size.height);
             background.backgroundColor = self.inactiveColor;
+            textLabel.textColor = self.textInActiveColor;
+            textLabel.frame = inactiveTextFrame;
+//            textLabel.textAlignment = NSTextAlignmentLeft;
         }
         background.layer.borderColor = self.borderColor.CGColor;
         onImageView.alpha = 0;
@@ -465,5 +531,14 @@
 - (void)setKnobColor:(UIColor *)color {
     self.thumbTintColor = color;
 }
+
+
+- (void) setDisplayText:(NSString *)displayText{
+    textLabel.text = displayText;
+    textLabel.textColor = self.textInActiveColor;
+}
+
+
+
 
 @end

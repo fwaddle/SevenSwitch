@@ -103,4 +103,12 @@
  */
 - (BOOL)isOn;
 
+/*
+ * Add Label
+ */
+@property (nonatomic,strong) NSString * displayText;
+@property (nonatomic,strong) UIColor * textActiveColor;
+@property (nonatomic,strong) UIColor * textInActiveColor;
+
+
 @end
