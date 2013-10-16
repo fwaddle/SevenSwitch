@@ -476,7 +476,7 @@
                 knob.frame = CGRectMake(1, knob.frame.origin.y, activeKnobWidth, knob.frame.size.height);
                 background.backgroundColor = self.activeColor;
                 textLabel.textColor = self.textActiveColor;
-                textLabel.frame = activeTextFrame;
+//                textLabel.frame = activeTextFrame;
 //                textLabel.textAlignment = NSTextAlignmentRight;
             }
             else {
