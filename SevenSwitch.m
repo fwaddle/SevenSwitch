@@ -38,6 +38,8 @@
     BOOL startTrackingValue;
     BOOL didChangeWhileTracking;
     BOOL isAnimating;
+    
+    UIPanGestureRecognizer * _panGestureRecognizer;
 }
 
 - (void)showOn:(BOOL)animated;
@@ -166,7 +168,7 @@
     knob.layer.shadowOpacity = 0.5;
     knob.layer.shadowOffset = CGSizeMake(0, 3);
     knob.layer.masksToBounds = NO;
-    knob.userInteractionEnabled = NO;
+    knob.userInteractionEnabled = YES;
     
     inactiveTextFrame = CGRectMake(self.frame.size.height + 2.0f, 0.0f, self.frame.size.width-self.frame.size.height, self.frame.size.height);
     activeTextFrame = CGRectMake(10.0f, 0.0f, self.frame.size.width-10.0f, self.frame.size.height);
@@ -180,7 +182,22 @@
     [self addSubview:textLabel];
     [self addSubview:knob];
 
+    _panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwipe:)];
+    [self addGestureRecognizer:_panGestureRecognizer];
     isAnimating = NO;
+}
+
+- (void) handleSwipe:(UIPanGestureRecognizer*) gesture {
+    CGPoint translation = [gesture translationInView:self];
+    if (gesture.state == UIGestureRecognizerStateChanged)
+    {
+        if(translation.x > self.frame.size.width/4.0f) {
+            if(!self.isOn) [self setOn:YES animated:YES];
+            
+        }else if(translation.x < (-self.frame.size.width/4.0f)) {
+            if(self.isOn)[self setOn:NO animated:YES];
+        }
+    }
 }
 
 
