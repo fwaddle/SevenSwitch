@@ -49,7 +49,6 @@
  *  Defaults to green.
  */
 @property (nonatomic, strong) UIColor *onTintColor;
-@property (nonatomic, strong) UIColor *onColor __deprecated;
 
 /*
  *	Sets the border color that shows when the switch is off. Defaults to light gray.
@@ -60,7 +59,6 @@
  *	Sets the knob color. Defaults to white.
  */
 @property (nonatomic, strong) UIColor *thumbTintColor;
-@property (nonatomic, strong) UIColor *knobColor __deprecated;
 
 /*
  *	Sets the shadow color of the knob. Defaults to gray.
@@ -106,7 +104,8 @@
 /*
  * Add Label
  */
-@property (nonatomic,strong) NSString * displayText;
+@property (nonatomic,strong) NSString * onText;
+@property (nonatomic,strong) NSString * offText;
 @property (nonatomic,strong) UIColor * textActiveColor;
 @property (nonatomic,strong) UIColor * textInActiveColor;
 
